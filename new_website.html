@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" name="viewport"/>
+<title>RFDETR | 대장 내시경 병변 검출</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<style>
+   :root {
+            /* 핵심 컬러 변수 */
+            --primary: #0B1426;
+            --primary-light: #1E2B4A;
+            --primary-soft: #2F3F66;
+            --accent: #00D4FF;
+            --accent-glow: #4AE8FF;
+            --accent-soft: rgba(0, 212, 255, 0.15);
+            --warm-white: #FEFCF8;
+            --surface: rgba(254, 252, 248, 0.98);
+            --surface-glass: rgba(255, 255, 255, 0.15);
+            --text-primary: #0A0E1A;
+            --text-secondary: rgba(10, 14, 26, 0.75);
+            --text-light: rgba(254, 252, 248, 0.95);
+            --text-muted: rgba(254, 252, 248, 0.7);
+            --gradient-primary: linear-gradient(135deg, #0B1426 0%, #1E2B4A 50%, #2F3F66 100%);
+            --gradient-accent: linear-gradient(120deg, #00D4FF 0%, #4AE8FF 100%);
+            
+            /* 그림자 프리셋 */
+            --shadow-soft: 0 4px 20px rgba(11, 20, 38, 0.12);
+            --shadow-medium: 0 8px 32px rgba(11, 20, 38, 0.18);
+            --shadow-strong: 0 16px 48px rgba(11, 20, 38, 0.25);
+            
+            /* 라운딩 값 프리셋 */
+            --border-radius-sm: 12px;
+            --border-radius: 16px;
+            --border-radius-lg: 24px;
+            --border-radius-xl: 32px;
+            
+            /* 간격 프리셋 */
+            --space-1: 4px;
+            --space-2: 8px;
+            --space-3: 12px;
+            --space-4: 16px;
+            --space-5: 20px;
+            --space-6: 24px;
+            --space-8: 32px;
+            --space-10: 40px;
+            --space-12: 48px;
+            --space-16: 64px;
+            --space-20: 80px;
+            --space-24: 96px;
+            
+            /* 컨테이너 폭 프리셋 */
+            --container-xs: 100%;
+            --container-sm: 640px;
+            --container-md: 768px;
+            --container-lg: 1024px;
+            --container-xl: 1280px;
+            --container-2xl: 1536px;
+            
+            /* 반응형 브레이크포인트 */
+            --bp-sm: 640px;
+            --bp-md: 768px;
+            --bp-lg: 1024px;
+            --bp-xl: 1280px;
+            --bp-2xl: 1536px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        body {
+            font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(180deg, var(--warm-white) 0%, #F8F6F2 50%, #F2F0EC 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+        }
+
+        /* 컨테이너 유틸리티 */
+        .container {
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 var(--space-4);
+        }
+
+        .container-sm { max-width: var(--container-sm); }
+        .container-md { max-width: var(--container-md); }
+        .container-lg { max-width: var(--container-lg); }
+        .container-xl { max-width: var(--container-xl); }
+        .container-2xl { max-width: var(--container-2xl); }
+
+        @media (min-width: 640px) {
+            .container { padding: 0 var(--space-6); }
+        }
+
+        @media (min-width: 1024px) {
+            .container { padding: 0 var(--space-8); }
+        }
+
+        /* 타이포그래피 기본값 */
+        .text-xs { font-size: 0.75rem; line-height: 1rem; }
+        .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+        .text-base { font-size: 1rem; line-height: 1.5rem; }
+        .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+        .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+        .text-2xl { font-size: 1.5rem; line-height: 2rem; }
+        .text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+        .text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
+        .text-5xl { font-size: 3rem; line-height: 1; }
+        .text-6xl { font-size: 3.75rem; line-height: 1; }
+
+        .font-light { font-weight: 300; }
+        .font-normal { font-weight: 400; }
+        .font-medium { font-weight: 500; }
+        .font-semibold { font-weight: 600; }
+        .font-bold { font-weight: 700; }
+        .font-extrabold { font-weight: 800; }
+        .font-black { font-weight: 900; }
+
+        /* 반응형 타이포그래피 */
+        .text-responsive-sm { font-size: clamp(0.875rem, 2vw, 1rem); }
+        .text-responsive-base { font-size: clamp(1rem, 2.5vw, 1.125rem); }
+        .text-responsive-lg { font-size: clamp(1.125rem, 3vw, 1.25rem); }
+        .text-responsive-xl { font-size: clamp(1.25rem, 3.5vw, 1.5rem); }
+        .text-responsive-2xl { font-size: clamp(1.5rem, 4vw, 1.875rem); }
+        .text-responsive-3xl { font-size: clamp(1.875rem, 5vw, 2.25rem); }
+        .text-responsive-4xl { font-size: clamp(2.25rem, 6vw, 3rem); }
+        .text-responsive-5xl { font-size: clamp(3rem, 8vw, 3.75rem); }
+
+        /* 애니메이션 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(var(--space-6));
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .animate {
+            opacity: 0;
+            animation-fill-mode: forwards;
+        }
+
+        .animate.visible {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        /* 헤더 */
+        header {
+            position: relative;
+            background: var(--gradient-primary);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -30%;
+            right: -20%;
+            width: 80%;
+            height: 80%;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.12) 0%, transparent 65%);
+            z-index: 1;
+        }
+
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: -25%;
+            left: -15%;
+            width: 70%;
+            height: 70%;
+            background: radial-gradient(circle, rgba(74, 232, 255, 0.08) 0%, transparent 60%);
+            z-index: 1;
+        }
+
+        /* 내비게이션 */
+        nav {
+            position: relative;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+            background: rgba(11, 20, 38, 0.1);
+            padding: var(--space-4) 0;
+        }
+
+        .nav-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: var(--space-8);
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+            padding: var(--space-3) 0;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-accent);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-toggle {
+            display: none;
+            background: var(--surface-glass);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-light);
+            border-radius: var(--border-radius);
+            padding: var(--space-3) var(--space-4);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            min-height: 44px;
+            min-width: 44px;
+        }
+
+        .nav-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* 히어로 섹션 */
+        .hero {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: var(--space-8) 0;
+            position: relative;
+            z-index: 5;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            background: var(--surface-glass);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            padding: var(--space-3) var(--space-4);
+            font-weight: 600;
+            margin-bottom: var(--space-6);
+            backdrop-filter: blur(10px);
+            animation: scaleIn 0.8s ease-out 0.2s backwards;
+        }
+
+        .hero-title {
+            margin-bottom: var(--space-6);
+            background: linear-gradient(135deg, var(--text-light) 0%, rgba(255, 255, 255, 0.8) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: fadeInUp 1s ease-out 0.4s backwards;
+            word-break: keep-all;
+        }
+
+        .hero-description {
+            max-width: 600px;
+            color: var(--text-muted);
+            margin-bottom: var(--space-8);
+            font-weight: 400;
+            animation: fadeInUp 1s ease-out 0.6s backwards;
+            word-break: keep-all;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-cta {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+            width: 100%;
+            max-width: 400px;
+            animation: fadeInUp 1s ease-out 0.8s backwards;
+        }
+
+        /* 버튼 */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+            padding: var(--space-4) var(--space-6);
+            border-radius: 50px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            min-height: 48px;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: var(--gradient-accent);
+            color: var(--primary);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn-primary:hover,
+        .btn-primary:active {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-strong);
+        }
+
+        .btn-secondary {
+            background: var(--surface-glass);
+            color: var(--text-light);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover,
+        .btn-secondary:active {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* 메인 콘텐츠 */
+        main {
+            background: var(--warm-white);
+            position: relative;
+            z-index: 2;
+        }
+
+        /* 섹션 공통 스타일 */
+        .section {
+            padding: var(--space-16) 0;
+            scroll-margin-top: 100px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: var(--space-16);
+        }
+
+        .section-badge {
+            display: inline-block;
+            background: var(--accent-soft);
+            color: var(--accent);
+            padding: var(--space-2) var(--space-4);
+            border-radius: 50px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: var(--space-4);
+        }
+
+        .section-title {
+            color: var(--primary);
+            margin-bottom: var(--space-4);
+            line-height: 1.2;
+            word-break: keep-all;
+        }
+
+        .section-subtitle {
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.7;
+            word-break: keep-all;
+        }
+
+        /* 그리드 레이아웃 */
+        .grid {
+            display: grid;
+            gap: var(--space-6);
+        }
+
+        .grid-cols-1 { grid-template-columns: 1fr; }
+
+        @media (min-width: 640px) {
+            .sm\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+            .sm\:gap-8 { gap: var(--space-8); }
+        }
+
+        @media (min-width: 768px) {
+            .md\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+            .md\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+            .md\:gap-8 { gap: var(--space-8); }
+        }
+
+        @media (min-width: 1024px) {
+            .lg\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+            .lg\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+            .lg\:gap-8 { gap: var(--space-8); }
+        }
+
+        /* 카드 */
+        .card {
+            background: var(--surface);
+            border-radius: var(--border-radius-lg);
+            padding: var(--space-6);
+            border: 1px solid rgba(11, 20, 38, 0.08);
+            box-shadow: var(--shadow-soft);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-accent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card:hover::before,
+        .card:focus-within::before {
+            opacity: 1;
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--accent-soft);
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            font-weight: 700;
+            margin-bottom: var(--space-4);
+        }
+
+        .card-title {
+            color: var(--primary);
+            margin-bottom: var(--space-3);
+            line-height: 1.3;
+        }
+
+        .card-content {
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* 메트릭 섹션 */
+        .metrics-section {
+            scroll-margin-top: 100px;
+            background: var(--gradient-primary);
+            color: var(--text-light);
+            border-radius: var(--border-radius-xl);
+            margin: var(--space-16) var(--space-4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metrics-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 50%, rgba(0, 212, 255, 0.1), transparent 60%);
+            z-index: 1;
+        }
+
+        .metrics-content {
+            position: relative;
+            z-index: 2;
+            padding: var(--space-16) var(--space-6);
+        }
+
+        .metric-card {
+            background: var(--surface-glass);
+            border-radius: var(--border-radius);
+            padding: var(--space-6);
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .metric-value {
+            color: var(--accent-glow);
+            display: block;
+            margin-bottom: var(--space-2);
+            line-height: 1;
+        }
+
+        .metric-label {
+            color: var(--text-muted);
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        /* 파이프라인 스텝 */
+        .pipeline-step {
+            background: var(--surface);
+            border-radius: var(--border-radius);
+            padding: var(--space-6);
+            border: 1px solid rgba(11, 20, 38, 0.08);
+            box-shadow: var(--shadow-soft);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .pipeline-step::before {
+            content: attr(data-step);
+            position: absolute;
+            top: -12px;
+            left: var(--space-6);
+            background: var(--gradient-accent);
+            color: var(--primary);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .pipeline-step-title {
+            color: var(--primary);
+            margin-bottom: var(--space-3);
+            margin-top: var(--space-3);
+            line-height: 1.3;
+        }
+
+        .pipeline-step-content {
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* 실사용 데모 갤러리 */
+        .demo-gallery {
+            margin-top: var(--space-12);
+            display: grid;
+            gap: var(--space-6);
+        }
+
+        .demo-media {
+            background: var(--surface);
+            border-radius: var(--border-radius-lg);
+            border: 1px solid rgba(11, 20, 38, 0.08);
+            box-shadow: var(--shadow-soft);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .demo-media img {
+            width: 100%;
+            display: block;
+        }
+
+        .demo-caption {
+            padding: var(--space-4) var(--space-5);
+            background: rgba(11, 20, 38, 0.85);
+            color: var(--text-light);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .demo-note {
+            margin-top: var(--space-3);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* 팀 후기 카드 */
+        .testimonial-card {
+            background: var(--surface);
+            border-radius: var(--border-radius);
+            padding: var(--space-6);
+            border: 1px solid rgba(11, 20, 38, 0.08);
+            box-shadow: var(--shadow-soft);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .testimonial-card::before {
+            content: '"';
+            position: absolute;
+            top: var(--space-4);
+            left: var(--space-4);
+            color: var(--accent);
+            font-weight: 900;
+            line-height: 1;
+            opacity: 0.3;
+        }
+
+        .testimonial-content {
+            line-height: 1.7;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-4);
+            padding-left: var(--space-6);
+        }
+
+        .testimonial-author {
+            padding-left: var(--space-6);
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        /* CTA 섹션 */
+        .cta-section {
+            background: var(--gradient-primary);
+            color: var(--text-light);
+            border-radius: var(--border-radius-xl);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            margin: var(--space-16) var(--space-4);
+        }
+
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: -30%;
+            left: -30%;
+            width: 160%;
+            height: 160%;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.12), transparent 50%);
+            z-index: 1;
+        }
+
+        .cta-content {
+            position: relative;
+            z-index: 2;
+            padding: var(--space-16) var(--space-6);
+        }
+
+        .cta-description {
+            color: var(--text-muted);
+            margin-bottom: var(--space-8);
+            line-height: 1.7;
+            word-break: keep-all;
+        }
+
+        .cta-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        /* 푸터 */
+        footer {
+            background: var(--primary);
+            color: var(--text-muted);
+            text-align: center;
+            padding: var(--space-6);
+            line-height: 1.6;
+        }
+
+        /* 반응형 스페이싱 유틸리티 */
+        .hidden { display: none; }
+
+        @media (min-width: 640px) {
+            .sm\:block { display: block; }
+            .sm\:hidden { display: none; }
+            .sm\:flex { display: flex; }
+            .sm\:grid { display: grid; }
+        }
+
+        @media (min-width: 768px) {
+            .md\:block { display: block; }
+            .md\:hidden { display: none; }
+            .md\:flex { display: flex; }
+            .md\:grid { display: grid; }
+        }
+
+        @media (min-width: 1024px) {
+            .lg\:block { display: block; }
+            .lg\:hidden { display: none; }
+            .lg\:flex { display: flex; }
+            .lg\:grid { display: grid; }
+        }
+
+        /* 모바일 내비게이션 */
+        @media (max-width: 767px) {
+            .nav-links {
+                position: absolute;
+                top: 100%;
+                right: var(--space-4);
+                background: rgba(11, 20, 38, 0.95);
+                border-radius: var(--border-radius);
+                padding: var(--space-4);
+                flex-direction: column;
+                min-width: 200px;
+                opacity: 0;
+                visibility: hidden;
+                transform: translateY(-10px);
+                transition: all 0.3s ease;
+                backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: var(--shadow-medium);
+            }
+
+            .nav-links.open {
+                opacity: 1;
+                visibility: visible;
+                transform: translateY(0);
+            }
+
+            .nav-links a {
+                width: 100%;
+                padding: var(--space-3);
+                border-radius: var(--border-radius);
+                justify-content: flex-start;
+            }
+
+            .nav-links a:hover {
+                background: rgba(255, 255, 255, 0.1);
+            }
+
+            .nav-toggle {
+                display: inline-flex;
+            }
+
+            .hero-cta {
+                max-width: 100%;
+            }
+
+            .cta-buttons {
+                max-width: 100%;
+            }
+
+            .metrics-section,
+            .cta-section {
+                margin-left: 0;
+                margin-right: 0;
+                border-radius: var(--border-radius-lg);
+            }
+        }
+
+        /* 태블릿 레이아웃 */
+        @media (min-width: 768px) {
+            .hero-cta {
+                flex-direction: row;
+                justify-content: center;
+                max-width: none;
+            }
+
+            .btn {
+                width: auto;
+                min-width: 200px;
+            }
+
+            .cta-buttons {
+                flex-direction: row;
+                justify-content: center;
+                max-width: none;
+            }
+
+            .section {
+                padding: var(--space-20) 0;
+            }
+
+            .metrics-content {
+                padding: var(--space-20) var(--space-8);
+            }
+
+            .cta-content {
+                padding: var(--space-20) var(--space-8);
+            }
+        }
+
+        /* 데스크톱 레이아웃 */
+        @media (min-width: 1024px) {
+            .hero {
+                padding: var(--space-12) 0;
+            }
+
+            .card:hover {
+                transform: translateY(-4px);
+                box-shadow: var(--shadow-medium);
+            }
+
+            .testimonial-card:hover {
+                transform: translateY(-4px);
+                box-shadow: var(--shadow-medium);
+            }
+
+            .pipeline-step:hover {
+                transform: translateY(-4px);
+                box-shadow: var(--shadow-medium);
+            }
+
+            .section {
+                padding: var(--space-24) 0;
+            }
+        }
+
+        /* 대형 화면 */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        @media (prefers-contrast: high) {
+            :root {
+                --text-secondary: var(--text-primary);
+                --text-muted: var(--text-light);
+            }
+        }
+
+        *:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        /* 배경 최적화 */
+        @media (hover: none) and (pointer: coarse) {
+            .card:hover,
+            .testimonial-card:hover,
+            .pipeline-step:hover {
+                transform: none;
+                box-shadow: var(--shadow-soft);
+            }
+
+            .btn:hover {
+                transform: none;
+            }
+        }
+  </style>
+</head>
+<body>
+<header>
+<nav>
+<div class="container container-xl nav-container">
+<div class="logo text-responsive-xl font-extrabold">
+      RFDETR
+     </div>
+<button aria-expanded="false" aria-label="메뉴 열기" class="nav-toggle text-sm">메뉴</button>
+<ul class="nav-links text-sm">
+<li>
+<a href="#features">특장점</a>
+</li>
+<li>
+<a href="#results">성능 지표</a>
+</li>
+<li>
+<a href="#demo">라이브 데모</a>
+</li>
+<li>
+<a href="#pipeline">AI 파이프라인</a>
+</li>
+<li>
+<a href="#team">팀 소개</a>
+</li>
+</ul>
+</div>
+</nav>
+<div class="hero">
+<div class="container container-lg">
+<div class="hero-badge text-xs">대장 내시경 AI 솔루션</div>
+<h1 class="hero-title text-responsive-5xl font-black">대장 내시경 병변 검출의<br/>새로운 표준, RFDETR</h1>
+<p class="hero-description text-responsive-base font-normal">RFDETR는 대장 내시경 영상에 최적화된 Transformer 기반 딥러닝 모델로, 병변 검출 민감도를 높이면서도 FP는 최소화합니다. 실제 임상 워크플로에 바로 적용 가능한 안정성과 해석력을 갖추고 있습니다.</p>
+</div>
+</div>
+</header>
+<main>
+<section class="section" id="features">
+<div class="container container-xl">
+<div class="section-header">
+<span class="section-badge text-xs">Why RFDETR</span>
+<h2 class="section-title text-responsive-4xl font-extrabold">임상 현장에서 검증된 정확도와 속도</h2>
+<p class="section-subtitle text-responsive-base font-normal">대장 내시경 표준 데이터셋과 실제 내시경 영상에서 검증한 RFDETR의 핵심 역량입니다.</p>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 sm:gap-8">
+<article class="card animate">
+<div class="card-icon text-lg">
+        AI
+       </div>
+<h3 class="card-title text-responsive-xl font-bold">Transformer 기반 정밀 검출</h3>
+<p class="card-content text-responsive-sm">Dual-scale feature encoder와 refined detection head를 적용해 폴립부터 미세 병변까지 세밀하게 검출합니다.</p>
+</article>
+<article class="card animate">
+<div class="card-icon text-lg">
+        RT
+       </div>
+<h3 class="card-title text-responsive-xl font-bold">실시간 인퍼런스</h3>
+<p class="card-content text-responsive-sm">TensorRT 최적화와 경량화된 backbone으로 항시 20 FPS 이상의 속도를 유지합니다.</p>
+</article>
+<article class="card animate">
+<div class="card-icon text-lg">
+        ACC
+       </div>
+<h3 class="card-title text-responsive-xl font-bold">낮은 오검출률</h3>
+<p class="card-content text-responsive-sm">RF-guided Post Processing 모듈이 false positive를 28% 감소시켜 내시경 전문의가 신뢰할 수 있는 결과를 제공합니다.</p>
+</article>
+<article class="card animate">
+<div class="card-icon text-lg">
+        VIZ
+       </div>
+<h3 class="card-title text-responsive-xl font-bold">투명한 설명력</h3>
+<p class="card-content text-responsive-sm">Attention heatmap과 lesion tracking overlay를 함께 제공하여 의사의 의사결정을 돕습니다.</p>
+</article>
+</div>
+</div>
+</section>
+<section class="metrics-section" id="results">
+<div class="metrics-content">
+<div class="section-header">
+<span class="section-badge text-xs" style="background: rgba(255,255,255,0.2); color: var(--text-light);">Model Metrics</span>
+<h2 class="section-title text-responsive-4xl font-extrabold" style="color: var(--text-light);">정량 지표로 증명된 성능</h2>
+<p class="section-subtitle text-responsive-base font-normal" style="color: var(--text-muted);">대장 내시경 표준 데이터셋과 임상 영상상에서 RFDETR은 기존 모델 대비 더 높은 민감도와 정밀도를 기록했습니다.</p>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 sm:gap-8">
+<div class="metric-card animate">
+<span class="metric-value text-responsive-4xl font-black">80.0%</span>
+<div class="metric-label text-xs">폴립 검출 민감도 (Recall)</div>
+</div>
+<div class="metric-card animate">
+<span class="metric-value text-responsive-4xl font-black">91.1%</span>
+<div class="metric-label text-xs">정밀도 (Precision)</div>
+</div>
+<div class="metric-card animate">
+<span class="metric-value text-responsive-4xl font-black">0.846</span>
+<div class="metric-label text-xs">F1 Score</div>
+</div>
+<div class="metric-card animate">
+<span class="metric-value text-responsive-4xl font-black">23 FPS</span>
+<div class="metric-label text-xs">평균 FPS</div>
+</div>
+</div>
+</div>
+</section>
+<section class="section" id="pipeline">
+<div class="container container-xl">
+<div class="section-header">
+<span class="section-badge text-xs">
+       Pipeline
+      </span>
+<h2 class="section-title text-responsive-4xl font-extrabold">RFDETR 작동 방식</h2>
+<p class="section-subtitle text-responsive-base font-normal">내시경 장비에 연결된 캡처 카드로 영상 스트림을 받아, RFDETR가 실시간으로 병변 후보를 표시하고, 전용 대시보드에 병변 위치 및 신뢰도를 전달합니다.</p>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 sm:gap-8">
+<div class="pipeline-step animate" data-step="01">
+<h4 class="pipeline-step-title text-responsive-lg font-bold">영상 수집</h4>
+<p class="pipeline-step-content text-responsive-sm">AI 엔도스코피 워크스테이션이 RAW 영상과 메타데이터를 캡처합니다.</p>
+</div>
+<div class="pipeline-step animate" data-step="02">
+<h4 class="pipeline-step-title text-responsive-lg font-bold">RF Feature Encoding</h4>
+<p class="pipeline-step-content text-responsive-sm">주파수 기반 특징을 보강한 멀티스케일 인코더가 섬세한 병변 정보를 추출합니다.</p>
+</div>
+<div class="pipeline-step animate" data-step="03">
+<h4 class="pipeline-step-title text-responsive-lg font-bold">DETR 기반 디코딩</h4>
+<p class="pipeline-step-content text-responsive-sm">Refined Transformer Decoder가 병변 후보를 예측하고 confidence를 산출합니다.</p>
+</div>
+<div class="pipeline-step animate" data-step="04">
+<h4 class="pipeline-step-title text-responsive-lg font-bold">해석 &amp; 리포팅</h4>
+<p class="pipeline-step-content text-responsive-sm">Attention heatmap과 lesion tracking overlay를 내시경 모니터에 동기화하여 제공합니다.</p>
+</div>
+</div>
+</div>
+</section>
+<section class="section" id="demo">
+<div class="container container-xl">
+<div class="section-header">
+<span class="section-badge text-xs">Live Demo</span>
+<h2 class="section-title text-responsive-4xl font-extrabold">실사용 데모</h2>
+<p class="section-subtitle text-responsive-base font-normal">RFDETR이 실제 내시경에서 병변을 표시하는 장면을 확인해 보세요.</p>
+</div>
+<div class="demo-gallery">
+<div class="demo-media animate">
+<img alt="대장 내시경 화면 위에 RFDETR가 병변을 검출한 결과" src="assets/demo-polyp.png"/>
+<div class="demo-caption">실제 검진 영상에서 RFDETR이 추론한 병변 후보 박스 (용종 84%)</div>
+</div>
+</div>
+</div>
+</section>
+<section class="section" id="team">
+<div class="container container-xl">
+<div class="section-header">
+<span class="section-badge text-xs">Team Insight</span>
+<h2 class="section-title text-responsive-4xl font-extrabold">팀 소개</h2>
+<p class="section-subtitle text-responsive-base font-normal">프로젝트를 함께 준비한 팀원들을 소개합니다!</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 md:gap-8">
+<div class="testimonial-card animate">
+<div class="testimonial-content text-responsive-sm">모델도 내가, 발표도 내가. 이 맛에 조장합니다.</div>
+<div class="testimonial-author text-xs">건양대 의공학과 노진우</div>
+</div>
+<div class="testimonial-card animate">
+<div class="testimonial-content text-responsive-sm">데이터만 닦았는데 성능이 빛나버림</div>
+<div class="testimonial-author text-xs">건양대 의공학과 정다인</div>
+</div>
+<div class="testimonial-card animate">
+<div class="testimonial-content text-responsive-sm">이 정도면 바로 임상에 투입해도 되겠다 싶었습니다.</div>
+<div class="testimonial-author text-xs">건양대 응급구조학과 송주황</div>
+</div>
+<div class="testimonial-card animate">
+<div class="testimonial-content text-responsive-sm">보고서 장인 등장, 데이터까지 내가 다 챙김.</div>
+<div class="testimonial-author text-xs">건양대 의공학과 안진경</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<footer>
+<p class="text-xs">© 2025 RFDETR 연구팀. All rights reserved.</p>
+</footer>
+<script>
+   // ?명꽣?뱀뀡 ?듭?踰꾨? ?듯븳 ?좊땲硫붿씠??
+        const animatedElements = document.querySelectorAll('.animate');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -30px 0px'
+        });
+
+        animatedElements.forEach((element) => {
+            observer.observe(element);
+        });
+
+        // 紐⑤컮???ㅻ퉬寃뚯씠??
+        const navToggle = document.querySelector('.nav-toggle');
+        const navLinks = document.querySelector('.nav-links');
+        const navLinksAll = navLinks.querySelectorAll('a');
+
+        const closeNav = () => {
+            navLinks.classList.remove('open');
+            navToggle.setAttribute('aria-expanded', 'false');
+            navToggle.textContent = '메뉴';
+        };
+
+        const openNav = () => {
+            navLinks.classList.add('open');
+            navToggle.setAttribute('aria-expanded', 'true');
+            navToggle.textContent = '닫기';
+        };
+
+        navToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (navLinks.classList.contains('open')) {
+                closeNav();
+            } else {
+                openNav();
+            }
+        });
+
+        // ?ㅻ퉬寃뚯씠??留곹겕 ?대┃ ??硫붾돱 ?リ린
+        navLinksAll.forEach((link) => {
+            link.addEventListener('click', closeNav);
+        });
+
+        // ?몃? ?대┃ ??硫붾돱 ?リ린
+        document.addEventListener('click', (e) => {
+            if (!navLinks.contains(e.target) && !navToggle.contains(e.target)) {
+                closeNav();
+            }
+        });
+
+        // ?덈룄??由ъ궗?댁쫰 ??紐⑤컮??硫붾돱 ?リ린
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 768) {
+                closeNav();
+            }
+        });
+
+        // 遺?쒕윭???ㅽ겕濡?
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const target = document.querySelector(this.getAttribute('href'));
+                if (!target) {
+                    return;
+                }
+                e.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+
+        // ?깅뒫 理쒖쟻?붾? ?꾪븳 ?붾컮?댁떛
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // 由ъ궗?댁쫰 ?대깽??理쒖쟻??
+        const handleResize = debounce(() => {
+            // 由ъ궗?댁쫰 愿??泥섎━
+        }, 250);
+
+        window.addEventListener('resize', handleResize, { passive: true });
+
+        // ?섏씠吏 濡쒕뱶 ??珥덇린 ?좊땲硫붿씠??
+        window.addEventListener('load', () => {
+            const firstAnimateElements = document.querySelectorAll('#features .animate');
+            firstAnimateElements.forEach((element, index) => {
+                setTimeout(() => {
+                    element.classList.add('visible');
+                }, index * 100);
+            });
+        });
+  </script>
+</body>
+</html>

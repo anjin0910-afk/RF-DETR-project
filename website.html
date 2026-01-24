@@ -1,0 +1,541 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>건양대학교 의공학과 | 대장 내시경 병변 검출</title>
+    <style>
+        :root {
+            --navy: #0a1748;
+            --navy-light: #193f78;
+            --white: #f8fbff;
+            --accent: #00c2ff;
+            --text-dark: #0e1528;
+            --text-light: rgba(255, 255, 255, 0.87);
+            --card-bg: rgba(248, 251, 255, 0.85);
+            --shadow: 0 20px 40px -24px rgba(10, 23, 72, 0.6);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Pretendard", "Segoe UI", "Apple SD Gothic Neo", sans-serif;
+            background: radial-gradient(circle at top right, #eff6ff, #ffffff 45%);
+            color: var(--text-dark);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        header {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--navy) 0%, #112767 50%, var(--white) 100%);
+            color: var(--text-light);
+            padding: 96px 8% 140px;
+        }
+
+        header::before,
+        header::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0));
+            filter: blur(0.5px);
+        }
+
+        header::before {
+            width: 520px;
+            height: 520px;
+            top: -160px;
+            right: -120px;
+        }
+
+        header::after {
+            width: 420px;
+            height: 420px;
+            bottom: -120px;
+            left: -60px;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 64px;
+        }
+
+        nav .logo {
+            font-size: 1.2rem;
+            font-weight: 600;
+            letter-spacing: 0.08rem;
+        }
+
+        nav a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+            margin-left: 32px;
+            transition: opacity 0.3s ease;
+        }
+
+        nav a:hover {
+            opacity: 0.7;
+        }
+
+        .hero {
+            max-width: 1100px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.6rem, 5vw, 3.8rem);
+            line-height: 1.15;
+            margin-bottom: 24px;
+        }
+
+        .hero p.lead {
+            max-width: 620px;
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+            color: rgba(255, 255, 255, 0.78);
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary,
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 26px;
+            border-radius: 999px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.35s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(120deg, var(--accent), #7dc7ff 120%);
+            color: var(--navy);
+            box-shadow: 0 12px 30px -18px rgba(0, 194, 255, 0.6);
+        }
+
+        .btn-secondary {
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: var(--text-light);
+            background: rgba(14, 32, 75, 0.35);
+            backdrop-filter: blur(6px);
+        }
+
+        .btn-primary:hover,
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 45px -22px rgba(0, 34, 84, 0.45);
+        }
+
+        main {
+            margin-top: -90px;
+        }
+
+        section {
+            padding: 80px 8%;
+        }
+
+        .card-grid,
+        .icon-grid {
+            display: grid;
+            gap: 32px;
+        }
+
+        .card-grid {
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        }
+
+        .icon-grid {
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(13, 45, 90, 0.08);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .card h3 {
+            font-size: 1.35rem;
+            margin-bottom: 12px;
+            color: var(--navy);
+        }
+
+        .card p {
+            color: rgba(14, 21, 40, 0.76);
+        }
+
+        .section-title {
+            text-transform: uppercase;
+            letter-spacing: 0.22rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--navy-light);
+            margin-bottom: 18px;
+        }
+
+        .section-heading {
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            margin-bottom: 32px;
+            color: var(--navy);
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 24px;
+            margin-top: 40px;
+        }
+
+        .metric {
+            padding: 28px;
+            border-radius: 24px;
+            background: linear-gradient(140deg, rgba(10, 23, 72, 0.9), rgba(10, 23, 72, 0.55));
+            color: var(--text-light);
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric::after {
+            content: "";
+            position: absolute;
+            inset: -40% 40% auto -40%;
+            height: 160%;
+            background: linear-gradient(120deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0));
+            transform: rotate(12deg);
+            z-index: 0;
+        }
+
+        .metric strong {
+            font-size: 2.6rem;
+            display: block;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .metric span {
+            position: relative;
+            z-index: 1;
+            color: rgba(255, 255, 255, 0.78);
+        }
+
+        .pipeline {
+            position: relative;
+            background: linear-gradient(120deg, rgba(9, 26, 66, 0.9), rgba(9, 26, 66, 0.65));
+            color: var(--text-light);
+            overflow: hidden;
+        }
+
+        .pipeline::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 15% 20%, rgba(0, 194, 255, 0.35), transparent 55%),
+                        radial-gradient(circle at 85% 75%, rgba(102, 178, 255, 0.28), transparent 60%);
+            mix-blend-mode: screen;
+            opacity: 0.85;
+        }
+
+        .pipeline-content {
+            position: relative;
+            z-index: 1;
+            max-width: 1080px;
+            margin: 0 auto;
+        }
+
+        .pipeline-steps {
+            display: grid;
+            gap: 28px;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        }
+
+        .pipeline-step {
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 20px;
+            padding: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(8px);
+            opacity: 0;
+            transform: translateY(28px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .pipeline-step.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .pipeline-step h4 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 14px;
+            font-size: 0.78rem;
+            border-radius: 999px;
+            background: rgba(0, 194, 255, 0.18);
+            color: #a7ddff;
+            text-transform: uppercase;
+            letter-spacing: 0.14rem;
+            margin-bottom: 16px;
+        }
+
+        .testimonials {
+            background: var(--white);
+        }
+
+        .testimonial-card {
+            padding: 32px;
+            border-radius: 24px;
+            border: 1px solid rgba(10, 23, 72, 0.12);
+            background: #ffffff;
+            box-shadow: 0 16px 40px -28px rgba(11, 32, 76, 0.3);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .testimonial-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .cta {
+            text-align: center;
+            background: linear-gradient(135deg, var(--navy) 0%, #0d2662 45%, #1e3c86 100%);
+            color: var(--text-light);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta::before {
+            content: "";
+            position: absolute;
+            inset: -20% 10% 20% -10%;
+            background: linear-gradient(120deg, rgba(0, 194, 255, 0.25), rgba(255, 255, 255, 0));
+            transform: skewY(-4deg);
+        }
+
+        .cta-content {
+            position: relative;
+            z-index: 1;
+            max-width: 680px;
+            margin: 0 auto;
+        }
+
+        footer {
+            background: #020924;
+            color: rgba(255, 255, 255, 0.62);
+            text-align: center;
+            padding: 32px;
+            font-size: 0.85rem;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 72px 7% 120px;
+            }
+
+            nav .logo {
+                font-size: 1rem;
+            }
+
+            nav a {
+                margin-left: 18px;
+            }
+
+            .hero p.lead {
+                font-size: 1rem;
+            }
+
+            .hero-cta {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">RFDETR_v3</div>
+            <div class="floating">
+                <a href="#features">특장점</a>
+                <a href="#pipeline">AI 파이프라인</a>
+                <a href="#results">성능 지표</a>
+            </div>
+        </nav>
+        <div class="hero">
+            <h1>대장 내시경 병변 검출의<br>새로운 표준, RFDETR_v3</h1>
+            <p class="lead">RFDETR_v3는 대장 내시경 영상에 최적화된 Transformer 기반 딥러닝 모델로,
+                병변 검출의 민감도를 향상시키면서 FP를 최소화합니다. 실제 임상 워크플로에 바로 적용 가능한
+                안정성과 해석력을 제공합니다.</p>
+            <div class="hero-cta">
+                <a class="btn-primary" href="#contact">실증 파트너십 문의</a>
+                <a class="btn-secondary" href="#features">모델 살펴보기</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section id="features">
+            <p class="section-title">Why RFDETR_v3</p>
+            <h2 class="section-heading">임상 현장에서 검증된 정확도와 속도</h2>
+            <div class="card-grid">
+                <article class="card animate">
+                    <h3>Transformer 기반 정밀 검출</h3>
+                    <p>Dual-scale feature encoder와 refined detection head를 적용해 거대한 용종부터 미세 용종까지 세밀하게 검출합니다.</p>
+                </article>
+                <article class="card animate">
+                    <h3>실시간 인퍼런스</h3>
+                    <p>TensorRT 최적화와 경량화된 backbone으로 20 FPS 이상을 유지합니다.</p>
+                </article>
+                <article class="card animate">
+                    <h3>낮은 오검출률</h3>
+                    <p>RF-guided Post Processing 모듈이 false positive를 28% 감소시켜 내시경의사가 신뢰할 수 있는 결과를 제공합니다.</p>
+                </article>
+                <article class="card animate">
+                    <h3>투명한 설명력</h3>
+                    <p>Attention heatmap과 lesion tracking overlay를 함께 제공하여 의사의 의사결정 과정을 돕습니다.</p>
+                </article>
+            </div>
+        </section>
+
+        <section id="results">
+            <p class="section-title">Model Metrics</p>
+            <h2 class="section-heading">지표로 증명된 성능</h2>
+            <p>대장 내시경 표준 데이터셋에서 RFDETR는 YOLOv12 등 여타 모델 대비
+                더 높은 민감도와 정밀도를 기록했습니다.</p>
+            <div class="metrics">
+                <div class="metric animate">
+                    <strong>86.7%</strong>
+                    <span>용종 검출 민감도 (Recall)</span>
+                </div>
+                <div class="metric animate">
+                    <strong>90.3%</strong>
+                    <span>정밀도 (Precision)</span>
+                </div>
+                <div class="metric animate">
+                    <strong>0.859</strong>
+                    <span>F1 Score</span>
+                </div>
+                <div class="metric animate">
+                    <strong>Avg 23 FPS</strong>
+                    <span>실시간 인퍼런스 속도</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="pipeline" class="pipeline">
+            <div class="pipeline-content">
+                <span class="badge">Pipeline</span>
+                <h2 class="section-heading">RFDETR 가동 방식</h2>
+                <p>내시경 장비에 연결된 캡처 카드로 영상 스트림을 받아, RFDETR가 실시간으로 병변 후보를 표시하고,
+                    영상에 병변 위치 및 신뢰도를 출력합니다.</p>
+                <div class="pipeline-steps">
+                    <div class="pipeline-step animate">
+                        <h4>01. 영상 수집</h4>
+                        <p>대장 내시경 워크스테이션이 RAW 영상과 메타데이터를 캡처합니다.</p>
+                    </div>
+                    <div class="pipeline-step animate">
+                        <h4>02. RF Feature Encoding</h4>
+                        <p>멀티스케일 인코더가 섬세한 병변 정보를 추출합니다.</p>
+                    </div>
+                    <div class="pipeline-step animate">
+                        <h4>03. DETR 기반 디코딩</h4>
+                        <p>Refined Transformer Decoder가 병변 후보를 예측하고 신뢰도를 산출합니다.</p>
+                    </div>
+                    <div class="pipeline-step animate">
+                        <h4>04. 해석 &amp; 리포팅</h4>
+                        <p>Attention heatmap과 lesion tracking overlay를 내시경 모니터에 동기화하여 제공합니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="testimonials">
+            <p class="section-title">Team members</p>
+            <h2 class="section-heading">무엇이든지 안다우</h2>
+            <div class="card-grid">
+                <blockquote class="testimonial-card animate">
+                    “모델도 내가, 발표도 내가. 이 맛에 조장합니다.”
+                    <footer>- 건양대 의공학과 노진우</footer>
+                </blockquote>
+                <blockquote class="testimonial-card animate">
+                    “데이터만 닦았는데 성능이 빛나버림”
+                    <footer>- 건양대 의공학과 정다인</footer>
+                </blockquote>
+                <blockquote class="testimonial-card animate">
+                    “보고서 장인 등장, 데이터까지 내가 다 챙김.”
+                    <footer>- 건양대 의공학과 안진경</footer>
+                </blockquote>
+                <blockquote class="testimonial-card animate">
+                    "이 정도면 바로 임상에 투입해도 되겠다 싶었습니다.”
+                    <footer>- 건양대 응급구조학과 송주황</footer>
+                </blockquote>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        &copy; 2025 건양대학교 무엇이든지 안다우 - OmniDow. All rights reserved.
+    </footer>
+
+    <script>
+        const animatedElements = document.querySelectorAll('.animate');
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.2,
+        });
+
+        animatedElements.forEach(element => observer.observe(element));
+    </script>
+</body>
+</html>

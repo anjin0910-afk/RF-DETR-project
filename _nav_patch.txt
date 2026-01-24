@@ -1,0 +1,32 @@
+@@
+-<ul class="nav-links text-sm">
+-<li>
+-<a href="#features">특장점</a>
+-</li>
+-<li>
+-<a href="#results">성능 지표</a>
+-</li>
+-<li>
+-<a href="#pipeline">AI 파이프라인</a>
+-</li>
+-<li>
+-<a href="#team">팀 소개</a>
+-</li>
+-</ul>
++<ul class="nav-links text-sm">
++<li>
++<a href="#features">특장점</a>
++</li>
++<li>
++<a href="#results">성능 지표</a>
++</li>
++<li>
++<a href="#demo">라이브 데모</a>
++</li>
++<li>
++<a href="#pipeline">AI 파이프라인</a>
++</li>
++<li>
++<a href="#team">팀 소개</a>
++</li>
++</ul>
