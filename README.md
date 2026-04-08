@@ -54,7 +54,3 @@ pip install PyQt5 opencv-python inference-sdk openpyxl openai
 ```bash
 python RFDETR_v3.py
 ```
-
-## 👨‍💻 기여자 (Contributors)
-- **안진경 (Team Leader & Vision Pipeline Engineer)**
-- 본 프로젝트는 건양대학교 제17회 캡스톤디자인 경진대회 등에서 수상한 이력이 포함된 학술/엔지니어링 결과물입니다.
